@@ -1,0 +1,277 @@
+a:focus { outline: none; }
+
+div.searchautocomplete-search {
+    position: relative;
+    text-align: left;
+}
+
+div.searchautocomplete-search div.resultbox {
+    display: none;
+    background: #ffffff;
+    border-radius: 8px; 
+    border: 1px solid #CCCCCC; /*#999999*/
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.6);
+}
+
+div.default div.searchautocomplete-search {
+    width: 120px;
+    height: 18px;
+}
+
+div.default div.searchautocomplete-search div.searchbox:hover  {
+    background: url(images/searchbox_bg.png) 0 -18px no-repeat; /* ie6png:crop */
+}
+
+div.default div.searchautocomplete-search div.searchbox:hover input {
+    color: #000000;
+}
+
+div.default div.searchautocomplete-search div.searchbox input:focus {
+    color: #000000;
+}
+
+div.default div.searchautocomplete-search div.searchbox input {
+    width: 84px;
+    height: 15px;
+    padding: 3px 0px 0px 0px;
+    border: none;
+    outline: none;
+    background: none;
+    float: left;
+    color: #646464;
+    font-size: 11px;
+}
+
+div.default div.searchautocomplete-search div.searchbox button {
+    width: 18px;
+    height: 18px;
+    padding: 0px;
+    border: none;
+    float: left;
+    cursor: pointer;
+    line-height: 0px;
+}
+
+div.default div.searchautocomplete-search div.searchbox button.search-magnifier {
+    background: url(images/magnifier_icon.png) 0 0 no-repeat;
+}
+
+button.search-close {
+    background: #EDEDED;
+    width: 18px;
+    height: 18px;
+    margin-right: 3px;
+    margin-top: 2px;
+    padding: 0 0 2px 2px;
+    border: none;
+    float: right;
+    cursor: pointer;
+    line-height: 0px;
+    border-radius: 8px;
+    
+}
+
+div.default div.searchautocomplete-search div.searchbox button.search-loader {
+    background: url(images/loader_icon.gif) 0 0 no-repeat;
+}
+
+div.default div.searchautocomplete-search div.resultbox {
+    position: absolute;
+    right: -94px;
+    top: -1px;
+    z-index: 10;
+}
+
+
+div.default div.searchautocomplete-search div.resultbox-b {
+    height: 16px;    
+    text-align: right;    
+    font-weight: bold;
+    font-size: 13px;
+    margin: 0 4px 4px 4px;
+}
+
+div.default div.searchautocomplete-search div.resultbox-b a:link,
+div.default div.searchautocomplete-search div.resultbox-b a:visited,
+div.default div.searchautocomplete-search div.resultbox-b a:hover {
+    color: #999999;
+    text-decoration: none;
+}
+
+div.default div.searchautocomplete-search a.search-more {
+    cursor: pointer;
+    color: #ffffff;
+}
+
+
+div.default div.searchautocomplete-search h3.search-header {
+    margin: 0;
+    text-align: left;
+    padding: 0px 0px 0px 5px;
+    height: 25px;   
+    line-height: 25px;
+    font-weight: bold;
+    color: #999999;
+    font-size: 15px;
+    letter-spacing: 0px;
+}
+
+div.default div.searchautocomplete-search .search-results a {
+    min-height: 30px;
+}
+
+div.default div.searchautocomplete-search .resultbox-bg a:link,
+div.default div.searchautocomplete-search .resultbox-bg a:hover,
+div.default div.searchautocomplete-search .resultbox-bg a:visited {    
+    color: #2F2F2F;
+    text-decoration: none;
+}
+
+
+
+div.default div.searchautocomplete-search .resultbox-bg a h3 {
+    margin: 0px;
+    font-size: 110%;
+    color: #323232;
+    line-height: 140%;
+    font-weight: bold;
+    letter-spacing: 0px;
+}
+
+div.default div.searchautocomplete-search .search-results div.searchautocomplete-row {
+    min-height: 30px;
+}
+
+div.default div.searchautocomplete-search .resultbox-bg div.searchautocomplete-row {
+    padding: 5px 10px 5px 10px;
+    background: #FAFAFA;
+    display: block;
+    font-size: 11px;
+    line-height: 140%;
+    overflow: hidden;
+}
+
+.header .form-search .search-autocomplete li {
+    cursor: default;
+}
+
+input.spinner, input.spinner:focus {
+    background-repeat: no-repeat !important;
+    background-position: right center !important;
+    background-image: url(images/spinner.gif) !important;
+}
+
+.search-results{
+    font: 11px Arial,Helvetica,sans-serif;
+}
+
+.search-container{
+    margin: 1px 2px 4px 2px;
+}
+
+.hr_line {
+    color: #cccccc;
+    width: 97%;    
+}
+
+.div_line {
+    background-color:#ffffff;    
+}
+
+.item_select {
+    background-color:#EDF1FF;
+    cursor:default;
+}
+
+.span_item {
+    margin: 6px 2px;
+    padding: 4px 2px 4px 2px;    
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.s_item {
+    /*border-bottom:1px solid #cccccc;*/
+    height: auto !important;
+    height:65px;
+    display:table;
+    padding-bottom: 4px;
+    padding-top: 4px;
+    width: 100%;
+}
+.s_item a {text-decoration: none; color:#034B83;}
+.s_item a:visited {text-decoration: none; color:#034B83;}
+.s_item a:hover {text-decoration: none; color:#0066CC;}
+.s_icon {
+    width:80px;
+    text-align: center;
+    float: left;
+    vertical-align: middle;
+    height: auto !important;
+    min-height:65px;
+    height:65px;
+    padding-top: 5px;
+}
+.s_icon img {height:60px; width:60px;}
+.s_details {
+    padding-left:3px;
+    padding-right:2px;
+    height: auto !important;
+}
+.s_item_name {
+    font-weight:bold; 
+    height: auto !important;
+    min-height:15px;
+    height:15px;
+    overflow: auto;
+}
+.s_pstars {width:75px; border:0; height:13px;}
+.s_item_name a {margin-right:5px; color: #454545 !important;}
+.s_description {font-size:11px;}
+.s_price {padding-top:3px; color: #C76200;}
+.s_pprice {width: 68px; float:left; font:bold 13px Arial,Helvetica,sans-serif; padding-top:3px; padding-right:5px;}
+.s_pprice a {color:black; margin-right:5px;}
+.s_pprice a:visited {color:black;}
+.s_pprice a:hover {text-decoration:none; color:black;}
+.s_button img {height:18px; width:88px; border:0;}
+.s_rem_email {font-size:10px;}
+
+.s_catitem {background-color: #FFFAD2; height:40px;}
+.s_catitem .s_item_name {font-size:13px;}
+.s_catitem .s_icon img {height:40px; width:40px;}
+
+.s_selected_item {background-color:#EFF4FD;}
+
+.header .form-search div.s_button button.button span {
+    background: none repeat scroll 0 0 #F18200;
+    border: 1px solid #DE5400;
+    color: #FFFFFF;
+    display: block;
+    font: bold 12px/19px Arial,Helvetica,sans-serif;
+    height: 19px;
+    padding: 0 8px;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.s_ratings { 
+    font-size:11px; 
+    line-height:1.25;
+    margin:7px 0; 
+    width: 70px;
+    float: left; 
+    margin-top: 0px; 
+    margin-bottom: 0px;
+}
+
+.s_ratings .rating-box {float:left; margin-right:3px;}
+
+a.a_review {color: #1E7EC8 !important;}
+
+highlight {
+    color: #FF2F00 !important;
+/*    font-size: 115%;*/
+    font-weight: bold;
+}
+
+

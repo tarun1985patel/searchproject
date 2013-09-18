@@ -1,0 +1,67 @@
+<?php
+
+/**
+ * aheadWorks Co.
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the EULA
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://ecommerce.aheadworks.com/LICENSE-M1.txt
+ *
+ * @category   AW
+ * @package    AW_Searchautocomplete
+ * @copyright  Copyright (c) 2003-2010 aheadWorks Co. (http://www.aheadworks.com)
+ * @license    http://ecommerce.aheadworks.com/LICENSE-M1.txt
+ */
+
+$installPath = Mage::app()->getStore()->getUrl('searchautocomplete/ajax/suggest');
+if(Mage::app()->getStore()->isCurrentlySecure())
+    $installPath = str_replace('http://', 'https://', $installPath);
+
+$skinUrl = $this->getSkinUrl('images/aw_searchautocomplete/');
+
+$queryDelay = Mage::getStoreConfig('searchautocomplete/interface/query_delay');
+if(!is_numeric($queryDelay)) $queryDelay = 500;
+$queryDelay = $queryDelay / 1000;
+
+$emptyText = $this->__('Search entire store here...');
+if(!$searchedText = $this->helper('catalogSearch')->getEscapedQueryText()) $searchedText = $emptyText;
+
+if($preloaderImage = Mage::getStoreConfig('searchautocomplete/interface/preloader_image'))
+    $preloaderImage = Mage::getBaseUrl(Mage_Core_Model_Store::URL_TYPE_MEDIA).'aw_searchautocomplete/'.$preloaderImage;
+else $preloaderImage = $skinUrl.'preloader.gif';
+
+?>
+<script type="text/javascript">
+    var posSC = $('search').cumulativeOffset();
+    if (!Prototype.Browser.IE)
+        posSC.left -= (parseInt($('search').getStyle('padding-left')) + 3);
+
+    $('search').writeAttribute('value', '<?php echo $searchedText ?>');
+    $('search').writeAttribute('name', '<?php echo $this->helper('catalogSearch')->getQueryParamName() ?>');
+    $('search').writeAttribute('id', 'myInput');
+
+    $('search_autocomplete').remove();
+    var div_to_replace = document.createElement('div');
+    div_to_replace.innerHTML =
+        '<div class="search-autocomplete" id="myContainer" \n\
+            style="top:' + (posSC.top + $('myInput').getHeight() + 3) +'px;\n\
+             left:' + posSC.left + 'px"></div>';
+    document.body.appendChild(div_to_replace);
+
+//<![CDATA[
+    var installPath = '<?php echo $installPath; ?>';
+    var storeId = '<?php echo Mage::app()->getStore()->getId(); ?>';
+    var queryDelay = <?php echo (float)$queryDelay ?>;
+    var defaultHeader = '<?php echo Mage::getStoreConfig('searchautocomplete/interface/header') ?>';
+    var defaultFooter = '<?php echo Mage::getStoreConfig('searchautocomplete/interface/footer') ?>';
+    var maxResultsDisplayed = <?php echo (int)Mage::getStoreConfig('searchautocomplete/interface/show_top_x') ?>;
+    var openInNewWindow = <?php echo (int)Mage::getStoreConfig('searchautocomplete/interface/open_in_new_window') ?>;
+    var emptyText = '<?php echo $emptyText ?>';
+    var preloaderImage = '<?php echo $preloaderImage ?>';
+
+    document.observe('dom:loaded', YAHOO.example.CustomFormatting);
+//]]>
+</script>

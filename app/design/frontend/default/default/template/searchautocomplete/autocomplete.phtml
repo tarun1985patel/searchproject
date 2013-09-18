@@ -1,0 +1,245 @@
+<?php
+/**
+ * MageWorx
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the MageWorx EULA that is bundled with
+ * this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.mageworx.com/LICENSE-1.0.html
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade the extension
+ * to newer versions in the future. If you wish to customize the extension
+ * for your needs please refer to http://www.mageworx.com/ for more information
+ *
+ * @category   MageWorx
+ * @package    MageWorx_SearchAutocomplete
+ * @copyright  Copyright (c) 2012 MageWorx (http://www.mageworx.com/)
+ * @license    http://www.mageworx.com/LICENSE-1.0.html
+ */
+
+/**
+ * Search Autocomplete extension
+ *
+ * @category   MageWorx
+ * @package    MageWorx_SearchAutocomplete
+ * @author     MageWorx Dev Team
+ */
+
+$_helper = $this->helper('searchautocomplete');
+$_taxHelper  = Mage::helper('tax');
+$size = $_helper->getProductImageSize();
+$productResultFields = $_helper->getProductSearchResultFields();
+$cmsResultFields = $_helper->getCmsSearchResultFields();
+$serachDivWidth = 504;
+
+if (array_search('product_image', $productResultFields)===false) $serachDivWidth -= 74;
+if (array_search('reviews_rating', $productResultFields)===false) $serachDivWidth -= 84;
+if ($_helper->isSeparatorEnabled()) $htLineHTML = '<div align="center" class="div_line"><hr class="hr_line" size="1"/></div>'; else $htLineHTML = '';
+$htLineFlag = false;
+?>
+
+<div class="default">
+    <div class="searchautocomplete-search" id="searchautocomplete-search-1">
+        <div class="resultbox" style="display: block; width:<?php echo $serachDivWidth ?>px;">
+            <div class="resultbox-bg">
+                <button id="searchautocomplete-close" onclick="$('search_autocomplete').hide(); return false;"value="<?php echo $this->__('Close')?>" class="search-close" style="display: inline;">x</button>
+
+                <?php if ($_helper->isSuggestedSearches() && count($this->getSuggestData()) > 0): ?>
+                    <div class="search-results">
+                        <h3 class="search-header"><?php echo $this->__('Suggested Searches') ?></h3>
+
+                        <div class="search-container">
+                            <?php foreach($this->getSuggestData() as $suggest): ?>
+                                <span class="span_item" onclick="$('search').value='<?php echo $suggest['title']; ?>'; searchForm._selectAutocompleteItem($('search'));" onmouseover="$(this).addClassName('item_select')" onmouseout="$(this).removeClassName('item_select')"><b><?php echo $_helper->highlightText($suggest['title']); ?></b>&nbsp;&nbsp;(<?php echo $suggest['num_of_results']; ?>)</span>
+                            <?php endforeach ?>
+                        </div>
+                    </div>
+                    <?php $htLineFlag = true ?>
+                <?php endif ?>
+
+                 <?php if ($_helper->isSearchProducts() && $this->getProducts()->count() > 0): ?>
+                <div class="search-results">
+               
+                    <?php if ($htLineFlag) echo $htLineHTML ?>
+                <?php if($_helper->isShowProductResultsGroupedByCategories()) { ?>
+                    <?php 
+                        $groupedProducts = $this->getProductsGroupedByCategories();
+                        foreach ($groupedProducts as $group) :?>
+                    <h3 class="search-header">
+                        <?php echo $group['category']->getName(); ?>
+                    </h3>
+                    <div class="search-container">
+                        <?php
+                            foreach ($group['products'] as $product): 
+                        ?>
+                        <?php $_product = Mage::getModel('catalog/product')->load($product->getId()); ?>
+                        <div class="s_item" onmouseover="$(this).addClassName('item_select')" onmouseout="$(this).removeClassName('item_select')">
+                            <?php if (array_search('product_image', $productResultFields) !== false): ?>
+                            <div class="s_icon">
+                                <a href="<?php echo $_product->getProductUrl();?>" onclick="window.location='<?php echo $_product->getProductUrl();?>'">
+                                    <?php $_img = '<img id="image" src="'.$this->helper('catalog/image')->init($_product, 'image')->resize($size[0], $size[1]).'" alt="'.$this->htmlEscape($this->getImageLabel()).'" title="'.$this->htmlEscape($this->getImageLabel()).'" />'; ?>
+                                    <?php echo $this->helper('catalog/output')->productAttribute($_product, $_img, 'image'); ?>
+                                </a>
+                            </div>
+                            <?php endif ?>
+                            <div class="s_details">
+                                <div class="s_item_name">
+                                    <?php if (array_search('product_name', $productResultFields) !== false): ?> 
+                                        <span style="float: left;"><a onclick="window.location='<?php echo $_product->getProductUrl();?>'" href="<?php echo $_product->getProductUrl();?>"><?php echo $_helper->limitText($_product->getName(), $_helper->getProductTitleSize());?></a></span>
+                                    <?php endif; ?>
+                                    <?php if (array_search('reviews_rating', $productResultFields) !== false): ?>
+                                        <?php echo $this->getLayout()->createBlock('searchautocomplete/review_helper')->getSummaryHtml($_product, 'short', false) ?>
+                                    <?php endif ?>
+                                </div>
+                                <?php if (array_search('short_description', $productResultFields) !== false): ?>
+                                <div class="s_description">
+                                    <a href="<?php echo $_product->getProductUrl();?>" onclick="window.location='<?php echo $_product->getProductUrl();?>'" title=""><?php echo $_helper->limitText($_product->getShortDescription(), $_helper->getProductShortDescriptionSize());?></a>
+                                </div>
+                                <?php endif ?>
+                                <div class="s_price">
+                                        <?php if (array_search('price', $productResultFields) !== false): ?>
+                                        <div class="s_pprice">
+                                            <?php  if ($_product->getPrice()>0) echo Mage::app()->getStore()->convertPrice($_taxHelper->getPrice($_product, $_product->getFinalPrice()), true, false); ?>
+                                        </div>
+                                        <?php endif ?>
+                                        <?php if (array_search('add_to_cart_button', $productResultFields)): ?>
+                                        <div class="s_button">
+                                            <button onclick="setLocation('<?php echo Mage::helper('checkout/cart')->getAddUrl($_product) ?>')" class="button btn-cart" title="<?php echo $this->__('Add to Cart')?>" type="button">
+                                                <span><?php echo $this->__('Add to Cart')?></span>
+                                            </button>
+                                        </div>
+                                        <?php endif ?>
+                                </div>
+                            </div>
+                        </div>
+                        <?php endforeach ?>
+                    </div>
+                    <?php endforeach; ?>
+                    <?php } else { ?>
+                    <h3 class="search-header">
+                        <?php echo $this->__('Products'); ?>
+                    </h3>
+                    <div class="search-container">
+                        <?php
+                            $_products = $this->getSortProducts();
+						
+                            foreach ($_products as $product): 
+                        ?>
+                            <?php $_product = Mage::getModel('catalog/product')->load($product->getId()); ?>
+                        <div class="s_item" onmouseover="$(this).addClassName('item_select')" onmouseout="$(this).removeClassName('item_select')">
+                            <?php if (array_search('product_image', $productResultFields) !== false): ?>
+                            <div class="s_icon">
+                                <a href="<?php echo $_product->getProductUrl();?>" onclick="window.location='<?php echo $_product->getProductUrl();?>'">
+                                    <?php $_img = '<img id="image" src="'.$this->helper('catalog/image')->init($_product, 'image')->resize($size[0], $size[1]).'" alt="'.$this->htmlEscape($this->getImageLabel()).'" title="'.$this->htmlEscape($this->getImageLabel()).'" />'; ?>
+                                    <?php echo $this->helper('catalog/output')->productAttribute($_product, $_img, 'image'); ?>
+                                </a>
+                            </div>
+                            <?php endif ?>
+                            <div class="s_details">
+                                <div class="s_item_name">
+                                    <?php if (array_search('product_name', $productResultFields) !== false): ?> 
+                                        <span style="float: left;"><a onclick="window.location='<?php echo $_product->getProductUrl();?>'" href="<?php echo $_product->getProductUrl();?>"><?php echo $_helper->limitText($_product->getName(), $_helper->getProductTitleSize());?></a></span>
+                                    <?php endif; ?>
+                                    <?php if (array_search('reviews_rating', $productResultFields) !== false): ?>
+                                        <?php echo $this->getLayout()->createBlock('searchautocomplete/review_helper')->getSummaryHtml($_product, 'short', false) ?>
+                                    <?php endif ?>
+                                </div>
+                                <?php if (array_search('short_description', $productResultFields) !== false): ?>
+                                <div class="s_description">
+                                    <a href="<?php echo $_product->getProductUrl();?>" onclick="window.location='<?php echo $_product->getProductUrl();?>'" title=""><?php echo $_helper->limitText($_product->getShortDescription(), $_helper->getProductShortDescriptionSize());?></a>
+                                </div>
+                                <?php endif ?>
+                                <div class="s_price">
+                                        <?php if (array_search('price', $productResultFields) !== false): ?>
+                                        <div class="s_pprice">
+                                            <?php  if ($_product->getPrice()>0) echo Mage::app()->getStore()->convertPrice($_taxHelper->getPrice($_product, $_product->getFinalPrice()), true, false); ?>
+                                        </div>
+                                        <?php endif ?>
+                                        <?php if (array_search('add_to_cart_button', $productResultFields)): ?>
+                                        <div class="s_button">
+                                            <button onclick="setLocation('<?php echo Mage::helper('checkout/cart')->getAddUrl($_product) ?>')" class="button btn-cart" title="<?php echo $this->__('Add to Cart')?>" type="button">
+                                                <span><?php echo $this->__('Add to Cart')?></span>
+                                            </button>
+                                        </div>
+                                        <?php endif ?>
+                                </div>
+                            </div>
+                        </div>
+                        <?php endforeach ?>
+                    </div>
+                <?php } ?>
+                </div>
+                    <?php $htLineFlag = true ?>
+                <?php endif ?>
+
+                <?php if ($_helper->isSearchCategories() && count($this->getCategories()) > 0): ?>
+                    <div class="search-results">
+                        <?php if ($htLineFlag) echo $htLineHTML ?>
+                        <h3 class="search-header"><?php echo $this->__('Categories') ?></h3>
+                        <div class="search-container">
+                            <?php foreach($this->getCategories() as $category): ?>
+                                <span class="span_item" onclick="window.location='<?php echo $category->getUrl()?>'" onmouseover="$(this).addClassName('item_select')" onmouseout="$(this).removeClassName('item_select')"><a href="<?php echo $category->getUrl()?>"><b><?php echo $_helper->highlightText($category->getName()); ?></b></a></span>
+                            <?php endforeach ?>
+                        </div>
+                    </div>
+                    <?php $htLineFlag = true ?>
+                <?php endif ?>
+
+
+                <?php if ($_helper->isSearchCms() && count($this->getCmsPages()) > 0): ?>
+                    <div class="search-results">
+                        <?php if ($htLineFlag) echo $htLineHTML ?>
+                        <h3 class="search-header"><?php echo $this->__('CMS Pages') ?></h3>
+                        <div class="search-container">
+                            <?php foreach($this->getCmsPages() as $page): ?>
+                            <div class="s_item" style="cursor:pointer;" onmouseover="$(this).addClassName('item_select')" onmouseout="$(this).removeClassName('item_select')">
+                                <div class="s_details" onclick="window.location='<?php echo rtrim(Mage::getUrl($page->getIdentifier() == Mage::getStoreConfig('web/default/cms_home_page') ? '/' : $page->getIdentifier()),'/') ?>'">
+                                    <?php if (array_search('cms_title', $cmsResultFields)!==false): ?>
+                                        <div class="s_item_name" align="left">
+                                            <a href="<?php echo rtrim(Mage::getUrl($page->getIdentifier() == Mage::getStoreConfig('web/default/cms_home_page') ? '/' : $page->getIdentifier()),'/') ?>"><?php echo $_helper->highlightText($page->getTitle()); ?></a>
+                                        </div>
+                                    <?php endif ?>
+                                    <?php if (array_search('cms_description', $cmsResultFields)!==false): ?>
+                                        <div class="s_description">
+                                            <a href="<?php echo rtrim(Mage::getUrl($page->getIdentifier() == Mage::getStoreConfig('web/default/cms_home_page') ? '/' : $page->getIdentifier()),'/') ?>"><?php echo $this->sanitizeContent($page); ?></a>
+                                        </div>
+                                    <?php endif ?>
+                                </div>
+                            </div>
+                            <?php endforeach ?>
+                        </div>
+                    </div>
+                <?php endif ?>
+
+                <?php if ($_helper->isSearchBlog() && count($this->getBlogPosts())): ?>
+                    <div class="search-results">
+                        <?php if ($htLineFlag) echo $htLineHTML ?>
+                        <h3 class="search-header"><?php echo $this->__('Blog Posts') ?></h3>
+                        <div class="search-container">
+                            <?php foreach($this->getBlogPosts() as $post): ?>
+                            <div class="s_item" style="cursor:pointer;" onmouseover="this.addClassName('item_select')" onmouseout="this.removeClassName('item_select')">
+                                <div class="s_details" onclick="window.location='<?php echo rtrim(Mage::getUrl('blog/'.$post->getIdentifier()),'/') ?>'">
+                                    <div class="s_item_name" align="left">
+                                        <a href="<?php echo rtrim(Mage::getUrl('blog/'.$post->getIdentifier()),'/') ?>"><?php echo $_helper->highlightText($post->getTitle()); ?></a>
+                                    </div>
+                                    <div class="s_description">
+                                        <a href="<?php echo rtrim(Mage::getUrl('blog/'.$post->getIdentifier()),'/') ?>"><?php echo $this->sanitizeContent($post); ?></a>
+                                    </div>
+                                </div>
+                            </div>
+                            <?php endforeach ?>
+                        </div>
+                    </div>
+                <?php endif ?>
+                
+                <div class="resultbox-b">
+                    <a class="search-more" onclick="window.location='<?php echo $_helper->getMoreResultsUrl() ?>'" href="<?php echo $_helper->getMoreResultsUrl() ?>"><?php echo $this->__('More results') ?></a>
+                </div>                    
+            </div>    
+        </div>            
+    </div>
+</div>

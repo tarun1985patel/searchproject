@@ -1,0 +1,163 @@
+<?php
+/**
+ * MageWorx
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the MageWorx EULA that is bundled with
+ * this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.mageworx.com/LICENSE-1.0.html
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade the extension
+ * to newer versions in the future. If you wish to customize the extension
+ * for your needs please refer to http://www.mageworx.com/ for more information
+ *
+ * @category   MageWorx
+ * @package    MageWorx_SearchAutocomplete
+ * @copyright  Copyright (c) 2011 MageWorx (http://www.mageworx.com/)
+ * @license    http://www.mageworx.com/LICENSE-1.0.html
+ */
+
+/**
+ * Search Autocomplete extension
+ *
+ * @category   MageWorx
+ * @package    MageWorx_SearchAutocomplete
+ * @author     MageWorx Dev Team 
+ */
+
+// <div id="search_autocomplete" style="position: absolute; left: 40px; top: 21px; width: 215px; display: none;" class="search-autocomplete"></div>
+if ($this->helper('searchautocomplete')->isEnabled()) {
+?>
+<script type="text/javascript">
+//<![CDATA[    
+    $('search').stopObserving();
+    var prevSearchQuery = '';
+    var timeOutSearchQuery = [];
+    var cacheSearchQuery = [];
+    $searchQuerySuper = function(){};
+    
+    var myAutocompleter = Class.create(Ajax.Autocompleter, {
+        onBlur: function($super, event) {
+            this.hasFocus = false;
+            this.active = false;
+        },
+        show: function($super) {
+            $super();
+            $(document.body).observe('click', function(event){
+                var element = Event.element(event);
+                if (element.id == 'search' && element.value.length>1) {                    
+                    $('search_autocomplete').show();
+                } else {
+                    $('search_autocomplete').hide();
+                }
+            });
+
+            $('search_autocomplete').observe('click', function(event){
+                Event.stop(event);
+            });
+        },
+        onHover: function($super) {
+        },
+        onClick: function(event) {            
+        },
+        getUpdatedChoices: function($super) {            
+            if (prevSearchQuery!=$('search').value.replace(/^\s+|\s+$/g,"") && $('search').value.length>=1) {                
+                if (timeOutSearchQuery[prevSearchQuery]) timeOutSearchQuery[prevSearchQuery] = false;                
+                prevSearchQuery = $('search').value.replace(/^\s+|\s+$/g,"");                
+                if (cacheSearchQuery[prevSearchQuery]) {
+                    $searchQuerySuper(cacheSearchQuery[prevSearchQuery]);                    
+                } else {
+                    timeOutSearchQuery[prevSearchQuery] = true;
+                    setTimeout(
+                        function () {
+                            if (timeOutSearchQuery[prevSearchQuery]) {
+                                timeOutSearchQuery[prevSearchQuery] = false;
+                                $('search').addClassName('spinner');
+                                $super();
+                            }    
+                        }, 
+                        350
+                    );
+                    setTimeout( "$('search').removeClassName('spinner');", 15000);                        
+                }        
+            }    
+            
+        },
+        onComplete: function($super, request) {
+            var requestQ = '';
+            if (request && request['request']) {
+            	if (request['request']['options']['parameters'] && request['request']['options']['parameters']['q']) {
+            		requestQ = request['request']['options']['parameters']['q'];
+            	} else if (request['request']['parameters'] && request['request']['parameters']['q']) {
+            		requestQ = request['request']['parameters']['q'];
+            	}            	
+            	requestQ = requestQ.replace(/^\s+|\s+$/g,"");
+            }
+            
+            if (requestQ) {                
+                cacheSearchQuery[requestQ] = request;
+                $searchQuerySuper = $super;
+                timeOutSearchQuery[requestQ] = 0;
+            }            
+            
+            var hideSpinnerFlag = true;            
+            for(var elKey in timeOutSearchQuery) {            
+                if (!timeOutSearchQuery.hasOwnProperty(elKey)) continue;
+                if (timeOutSearchQuery[elKey] || timeOutSearchQuery[elKey]===false) hideSpinnerFlag = false;
+                
+            }
+            if (hideSpinnerFlag) $('search').removeClassName('spinner');
+            
+            $super(request);
+        }
+
+    });
+
+    var mySearchForm = Class.create(Varien.searchForm, {
+        initAutocomplete: function(url, destinationElement){
+            new myAutocompleter(
+                this.field,
+                destinationElement,
+                url,
+                {
+                    paramName: this.field.name,
+                    method: 'get',
+                    minChars: 1,
+                    updateElement: this._selectAutocompleteItem.bind(this),
+                    onShow : function(element, update) {                        
+                        if(!update.style.position || update.style.position=='absolute') {
+                            update.style.position = 'absolute';
+                            
+                            Position.clone(element, update, {
+                                setHeight: false,
+                                setWidth: false,
+                                offsetTop: element.offsetHeight
+                            });
+                        }
+                        Effect.Appear(update,{duration:0});
+                    }
+
+                }
+            );
+        },        
+        
+        isFocusFirstFlag: false,        
+        focus: function(event) {
+            if (!this.isFocusFirstFlag) {
+                this.field.value='';
+                this.isFocusFirstFlag = true;
+            } else if (this.field.value==this.emptyText){
+                this.field.value='';
+            }
+        }
+    });    
+    var searchForm = new mySearchForm('search_mini_form', 'search', '<?php echo $this->__('Search entire store here...') ?>');
+    searchForm.initAutocomplete('<?php echo $this->helper('catalogsearch')->getSuggestUrl() ?>', 'search_autocomplete');
+    
+//]]>
+</script>
+<?php } ?>
