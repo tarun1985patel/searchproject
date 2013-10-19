@@ -34,17 +34,15 @@
 
 <?php
     $_productCollection=$this->getLoadedProductCollection();
-	$collection =   $_productCollection;
-
-	// Do some fancy sorting
+	
+	/*$collection =   $_productCollection;
 	$collectionReflection = new ReflectionObject($collection);
 	$itemsPropertyReflection = $collectionReflection->getProperty('_items');
 	$itemsPropertyReflection->setAccessible(true); // Make it accessible
 	$collectionItems = $itemsPropertyReflection->getValue($collection);
 	usort($collectionItems,array('MageWorx_SearchAutocomplete_Block_Autocomplete', 'cmpNames'));
 	$itemsPropertyReflection->setValue($collectionReflection, $collectionItems);
-	$itemsPropertyReflection->setAccessible(false); // Return restriction back
-	// End them fancyness
+	$itemsPropertyReflection->setAccessible(false); // Return restriction back*/
 
     $_helper = $this->helper('catalog/output');	
 ?>

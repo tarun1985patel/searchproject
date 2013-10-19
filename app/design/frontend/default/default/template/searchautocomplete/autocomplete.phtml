@@ -29,6 +29,7 @@
  * @author     MageWorx Dev Team
  */
 
+
 $_helper = $this->helper('searchautocomplete');
 $_taxHelper  = Mage::helper('tax');
 $size = $_helper->getProductImageSize();
@@ -40,6 +41,8 @@ if (array_search('product_image', $productResultFields)===false) $serachDivWidth
 if (array_search('reviews_rating', $productResultFields)===false) $serachDivWidth -= 84;
 if ($_helper->isSeparatorEnabled()) $htLineHTML = '<div align="center" class="div_line"><hr class="hr_line" size="1"/></div>'; else $htLineHTML = '';
 $htLineFlag = false;
+
+ob_start();
 ?>
 
 <div class="default">
@@ -68,7 +71,9 @@ $htLineFlag = false;
                 <?php if($_helper->isShowProductResultsGroupedByCategories()) { ?>
                     <?php 
                         $groupedProducts = $this->getProductsGroupedByCategories();
-                        foreach ($groupedProducts as $group) :?>
+                        foreach ($groupedProducts as $group) : 				
+					?>
+                        
                     <h3 class="search-header">
                         <?php echo $group['category']->getName(); ?>
                     </h3>
@@ -127,7 +132,7 @@ $htLineFlag = false;
                         <?php
                             $_products = $this->getSortProducts();
 						
-                            foreach ($_products as $product): 
+                            foreach ($_products as $product):						
                         ?>
                             <?php $_product = Mage::getModel('catalog/product')->load($product->getId()); ?>
                         <div class="s_item" onmouseover="$(this).addClassName('item_select')" onmouseout="$(this).removeClassName('item_select')">
@@ -235,11 +240,57 @@ $htLineFlag = false;
                         </div>
                     </div>
                 <?php endif ?>
-                
-                <div class="resultbox-b">
+ 
+                         
+<?php
+$html=ob_get_contents();
+
+$querymodel = Mage::getModel('catalogsearch/query')->getCollection()
+			->addFieldToFilter('query_text',"computer");
+$search_result=$querymodel->getData();
+$num_result=intval($search_result[0]["num_results"]);
+
+if($num_result){
+
+	$tmp=explode("/", $_SERVER['PHP_SELF']);
+	$basePath=$_SERVER['DOCUMENT_ROOT']."/".$tmp[1];
+	$query_text=$_REQUEST["q"];
+	$cacheFileName=$query_text;
+	$cacheFilePath=$basePath."/MageWorx_search_cache/".$cacheFileName.".html";
+	/*$baseUrl=str_replace("/index.php","",Mage::getUrl());
+	$dbFilePath=$baseUrl."MageWorx_search_cache/".$cacheFileName.".html";*/
+
+	file_put_contents ( $cacheFilePath ,$html );
+	
+	$resource = Mage::getSingleton('core/resource');
+	$readConnection = $resource->getConnection('core_read');
+	$query = 'SELECT * FROM search_cache where query_text="'.$cacheFileName.'"';
+	$cache_search_result= $readConnection->fetchAll($query);
+	
+	$write = $resource->getConnection('core_write');
+	
+	$write = $resource->getConnection('core_write');
+		
+	if(count($cache_search_result)){
+		$query = "update search_cache set
+				query_text='$query_text',
+				num_results=$num_result,
+				cache_result_path='$cacheFilePath' 
+				where id=".$cache_search_result[0]["id"];			
+	}
+	else{
+		$query = "insert into search_cache 
+					(query_text,num_results,cache_result_path) 
+					values('$query_text',$num_result,'$cacheFilePath')";
+		
+	}
+	$write->query($query);
+}
+?>
+   <div class="resultbox-b <?php  echo $query;?>">
                     <a class="search-more" onclick="window.location='<?php echo $_helper->getMoreResultsUrl() ?>'" href="<?php echo $_helper->getMoreResultsUrl() ?>"><?php echo $this->__('More results') ?></a>
                 </div>                    
             </div>    
         </div>            
     </div>
-</div>
+</div>   
